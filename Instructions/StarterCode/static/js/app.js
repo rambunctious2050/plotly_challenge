@@ -3,14 +3,19 @@ This is not the only way to complete this assignment.
 Feel free to disregard and create your own code */
 
 // Define a function that will create metadata for given sample
-function buildMetadata(sample) {
-
+function buildMetadata() {
+    console.log("help2")
     // Read the json data
-
+    data = d3.json("../samples.json")
+    function datafilter(data) {
+        return data.metadata;
+    }
         // Parse and filter the data to get the sample's metadata
-
+        var filteredData = data.filter(datafilter);
+        //console.log(filteredData);
+        
         // Specify the location of the metadata and update it
-
+    
 }
 
 // Define a function that will create charts for given sample
@@ -31,7 +36,8 @@ function buildCharts(sample) {
 function init() {
 
     // Read json data
-
+    buildMetadata();
+    console.log("init")
         // Parse and filter data to get sample names
 
         // Add dropdown option for each sample
@@ -47,7 +53,6 @@ function optionChanged(newSample){
     // Update charts with newly selected sample
 
 }
-
 // Initialize dashboard on page load
 init();
 
