@@ -2,9 +2,9 @@ var panel = d3.select("panel-body")
 
 // Define a function that will create metadata for given sample
 function buildMetadata(sample) {
+    
     //get parent element
     var parentElement = document.getElementById("sample-metadata")
-
     var newPanel;
     var br;
     var currentPanel = undefined;
@@ -37,31 +37,32 @@ function buildCharts(sampleID) {
         var top10OTU;
         var top10OTUVals;
         var top10OTULabels;
-        // Add dropdown option for each sample   
+        // Get all the necessary data from the json file   
         samples.forEach((opt) => {
             if(opt.id == sampleID){
+                // info for the bar chart
                 top10OTU = opt.otu_ids.slice(0, 10);
                 top10OTUVals = opt.sample_values.slice(0, 10);
                 top10OTULabels = opt.otu_labels.slice(0, 10);
-
+                // info for bubble chart    
                 OTU = opt.otu_ids;
                 OTUVals = opt.sample_values;
                 OTULabels = opt.otu_labels;
             }
         });
         
-        // Convert bar graph y axis to string
+        // Convert bar graph y axis values to strings
         var str_top10OTU = [];
         var str_OTU = [];
         for(var i = 0; i < 10; i++){
             str_top10OTU.push("OTU " + top10OTU[i].toString());
         }
-        // for bubble chart
+        // Convert y axis values to strings for bubble chart
         for(var i = 0; i < OTU.length; i++){
             str_OTU.push("OTU" + OTU[i].toString())
         }
 
-        // Create bar chart in correct location
+        // Create bar chart
         var trace1 = {
           type: "bar",
           x: top10OTUVals,
@@ -70,15 +71,12 @@ function buildCharts(sampleID) {
         };
         var data = [trace1];
         var layout = {
-          title: "'Bar' Chart",
-          xaxis: { title: "Drinks"},
-          yaxis: { title: "% of Drinks Ordered"}
+          title: "Top 10 OTU IDs and Sample Values",
         };
         Plotly.newPlot("bar", data, layout);
 
-        // Create bubble chart in correct location
+        // Create bubble chart
         var size = OTUVals;
-
         var trace2 = {
             x: OTU,
             y: OTUVals,
@@ -91,14 +89,15 @@ function buildCharts(sampleID) {
         };
         var data = [trace2];
         var layout = {
-            title: 'Bubble Chart',
+            title: 'All OTU IDs and Sample Values',
+            xaxis: { title: "OTU IDs"},
+            yaxis: { title: "OTU Sample Values"},
             showlegend: false,
             height: 500,
             width: 1500
         };
         Plotly.newPlot("bubble", data, layout);
-    });
-    
+    });    
 }
 
 // Define function that will run on page load
@@ -122,7 +121,7 @@ function init() {
         buildMetadata(sample);
         buildCharts(sample.id);
 
-        // When new ID is selected from dropdown
+        // When new ID is selected from dropdown, get the relevant info for the new ID
         document.getElementById("selDataset").onchange = function(){
             var newID = document.getElementById("selDataset").value; 
             var newSample;
@@ -134,7 +133,6 @@ function init() {
             optionChanged(newSample);
          };
     });
-
 }
         
 function optionChanged(newSample){
