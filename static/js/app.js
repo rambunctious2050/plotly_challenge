@@ -4,9 +4,11 @@ var panel = d3.select("panel-body")
 function buildMetadata(sample) {
     //get parent element
     var parentElement = document.getElementById("sample-metadata")
+
     var newPanel;
     var br;
     var currentPanel = undefined;
+
     //Add the demographic info into the box for the selected ID
     var result = Object.keys(sample).map(function(key) {
         newPanel = document.createElement("panel-body");
@@ -21,48 +23,81 @@ function buildMetadata(sample) {
         parentElement.insertBefore(newPanel,currentPanel);
         parentElement.insertBefore(br,newPanel.nextSibling);
     });
+}
 
-        //var row = panel.append("tr");
-        //row.text("Ramyata");
-        //for (var key in sample){
-            //console.log("key "+ key + " has value " + sample[key]);
-            //var value = sample[key];
-            // var row = panel.append("tr");
-            // row.text("something");
-            // var cell = row.append("td");
-            // cell.text(value);       
-};
-
-
-        //var ids = filteredData.map(id => people.id);
-        //console.log(ids)
-
-        // Specify the location of the metadata and update it
-        //sample.forEach((info) => {
-            //console.log(info);
-        //     var row = panel.append("tr");
-        //     Object.entries(info).forEach(([key, value]) => {
-        //       var cell = row.append("td");
-        //       //var str = key + ":" + value;
-        //       cell.text(value);
-        //     });
-        // });
-
-         //});
-
-         //var obj = {"1":5,"2":7,"3":0,"4":0,"5":0,"6":0,"7":0,"8":0,"9":0,"10":0,"11":0,"12":0}
-         
 // Define a function that will create charts for given sample
-function buildCharts(sample) {
+function buildCharts(sampleID) {
 
     // Read the json data
+    var select = document.getElementById("selDataset"); 
+    // Read json data
+    d3.json("../../samples.json").then(function(data){
+        // Parse and filter data to get samples
+        var samples = data.samples;
+        var top10OTU;
+        var top10OTUVals;
+        var top10OTULabels;
+        // Add dropdown option for each sample   
+        samples.forEach((opt) => {
+            if(opt.id == sampleID){
+                top10OTU = opt.otu_ids.slice(0, 10);
+                top10OTUVals = opt.sample_values.slice(0, 10);
+                top10OTULabels = opt.otu_labels.slice(0, 10);
 
-        // Parse and filter the data to get the sample's OTU data
-        // Pay attention to what data is required for each chart
+                OTU = opt.otu_ids;
+                OTUVals = opt.sample_values;
+                OTULabels = opt.otu_labels;
+            }
+        });
+        
+        // Convert bar graph y axis to string
+        var str_top10OTU = [];
+        var str_OTU = [];
+        for(var i = 0; i < 10; i++){
+            str_top10OTU.push("OTU " + top10OTU[i].toString());
+        }
+        // for bubble chart
+        for(var i = 0; i < OTU.length; i++){
+            str_OTU.push("OTU" + OTU[i].toString())
+        }
 
         // Create bar chart in correct location
+        var trace1 = {
+          type: "bar",
+          x: top10OTUVals,
+          y: str_top10OTU,
+          orientation: 'h'
+        };
+        var data = [trace1];
+        var layout = {
+          title: "'Bar' Chart",
+          xaxis: { title: "Drinks"},
+          yaxis: { title: "% of Drinks Ordered"}
+        };
+        Plotly.newPlot("bar", data, layout);
 
         // Create bubble chart in correct location
+        var size = OTUVals;
+
+        var trace2 = {
+            x: OTU,
+            y: OTUVals,
+            text: OTULabels,
+            mode: 'markers',
+            marker:{
+                color: OTU,
+                size: size
+            }
+        };
+        var data = [trace2];
+        var layout = {
+            title: 'Bubble Chart',
+            showlegend: false,
+            height: 500,
+            width: 1500
+        };
+        Plotly.newPlot("bubble", data, layout);
+    });
     
 }
 
@@ -85,16 +120,34 @@ function init() {
         var sample = data.metadata[0];
         console.log(sample);
         buildMetadata(sample);
+        buildCharts(sample.id);
+
+        // When new ID is selected from dropdown
+        document.getElementById("selDataset").onchange = function(){
+            var newID = document.getElementById("selDataset").value; 
+            var newSample;
+            data.metadata.forEach((info) => {
+                if(info.id == newID){
+                    newSample = info;
+                }
+            });
+            optionChanged(newSample);
+         };
     });
-};
-        
-
-function optionChanged(newSample){
-
-    // Update metadata with newly selected sample
-
-    // Update charts with newly selected sample
 
 }
+        
+function optionChanged(newSample){
+
+    // Clear current panel
+    document.getElementById("sample-metadata").innerHTML = "";
+
+    // Update metadata with newly selected sample
+    buildMetadata(newSample);
+
+    // Update charts with newly selected sample
+    buildCharts(newSample.id); 
+}
+
 // Initialize dashboard on page load
 init();
