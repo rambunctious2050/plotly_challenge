@@ -31,7 +31,7 @@ function buildCharts(sampleID) {
     // Read the json data
     var select = document.getElementById("selDataset"); 
     // Read json data
-    d3.json("plotly_challenge/samples.json").then(function(data){
+    d3.json("samples.json").then(function(data){
         // Parse and filter data to get samples
         var samples = data.samples;
         var top10OTU;
@@ -104,7 +104,7 @@ function buildCharts(sampleID) {
 function init() {
     var select = document.getElementById("selDataset"); 
     // Read json data
-    d3.json("plotly_challenge/samples.json").then(function(data){
+    d3.json("samples.json").then(function(data){
         // Parse and filter data to get sample names
         var sampleNames = data.names;
         console.log(sampleNames);
